@@ -262,6 +262,96 @@ error_reporting(E_ALL);
             readLastLine(LOG_PATH));
     }
 }
+// Тест на строковый уровень error
+{
+    Log::setLogFileLevelByName(Log::S_ERROR);
+    Log::debug("Debug message");
+    Log::error("Error message");
+    Log::info("Info message");
+    Log::warning("Warning message");
+    if (!matchLogLine("/^Application Error: Error message/", readLastLine(LOG_PATH))) {
+        printFailedTest("Тест на строковый уровень error",
+            "[Дата] Application Error: Error message",
+            readLastLine(LOG_PATH));
+    }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
+}
+// Тест на строковый уровень warning
+{
+    Log::setLogFileLevelByName(Log::S_WARNING);
+    Log::debug("Debug message");
+    Log::error("Error message");
+    Log::info("Info message");
+    Log::warning("Warning message");
+    if (!matchLogLine("/^Application Error: Error message/", readLastLine(LOG_PATH, 1))) {
+        printFailedTest("Тест на строковый уровень warning",
+            "[Дата] Application Error: Error message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Warning: Warning message/", readLastLine(LOG_PATH))) {
+        printFailedTest("Тест на строковый уровень warning",
+            "[Дата] Application Warning: Warning message",
+            readLastLine(LOG_PATH));
+    }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
+}
+// Тест на строковый уровень info
+{
+    Log::setLogFileLevelByName(Log::S_INFO);
+    Log::debug("Debug message");
+    Log::error("Error message");
+    Log::info("Info message");
+    Log::warning("Warning message");
+    if (!matchLogLine("/^Application Error: Error message/", readLastLine(LOG_PATH, 2))) {
+        printFailedTest("Тест на строковый уровень info",
+            "[Дата] Application Error: Error message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Info: Info message/", readLastLine(LOG_PATH, 1))) {
+        printFailedTest("Тест на строковый уровень info",
+            "[Дата] Application Info: Info message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Warning: Warning message/", readLastLine(LOG_PATH))) {
+        printFailedTest("Тест на строковый уровень info",
+            "[Дата] Application Warning: Warning message",
+            readLastLine(LOG_PATH));
+    }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
+}
+// Тест на строковый уровень debug
+{
+    Log::setLogFileLevelByName(Log::S_DEBUG);
+    Log::debug("Debug message");
+    Log::error("Error message");
+    Log::info("Info message");
+    Log::warning("Warning message");
+    if (!matchLogLine("/^Application Debug: Debug message/", readLastLine(LOG_PATH, 3))) {
+        printFailedTest("Тест на строковый уровень debug",
+            "[Дата] Application Debug: Debug message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Error: Error message/", readLastLine(LOG_PATH, 2))) {
+        printFailedTest("Тест на строковый уровень debug",
+            "[Дата] Application Error: Error message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Info: Info message/", readLastLine(LOG_PATH, 1))) {
+        printFailedTest("Тест на строковый уровень debug",
+            "[Дата] Application Info: Info message",
+            readLastLine(LOG_PATH));
+    }
+    if (!matchLogLine("/^Application Warning: Warning message/", readLastLine(LOG_PATH))) {
+        printFailedTest("Тест на строковый уровень debug",
+            "[Дата] Application Warning: Warning message",
+            readLastLine(LOG_PATH));
+    }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
+}
 
 /*
  * Именованный вывод логов

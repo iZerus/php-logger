@@ -9,6 +9,9 @@ use Error;
  * Статический логгер с ротацией
  * @author iZerus
  * @version 2.0
+ *
+ * @todo Строковый настройщик уровня логов
+ * @todo Автоконфигурацию
  */
 final class Log
 {
@@ -18,6 +21,22 @@ final class Log
     const A_WARNING = 8;
     const A_ERROR = 16;
     const A_ALL = 32767;
+    /**
+     * Все сообщения
+     */
+    const S_DEBUG = 'debug';
+    /**
+     * Все сообщения, кроме отладочных
+     */
+    const S_INFO = 'info';
+    /**
+     * Только сообщения об ошибках и предупреждениях
+     */
+    const S_WARNING = 'warning';
+    /**
+     * Только сообщения об ошибках
+     */
+    const S_ERROR = 'error';
     private static int $logReportingLevel = self::A_ALL;
     private static int $logDisplayLevel = self::A_NONE;
     private static string $defaultName = "Application";
@@ -223,5 +242,47 @@ final class Log
     public static function setLogDisplayLevel(int $level): void
     {
         self::$logDisplayLevel = $level;
+    }
+
+    /**
+     * @param string $level уровень описан в методе getLogLevelByName
+     * @see getLogLevelByName
+     */
+    public static function setLogDisplayLevelByName(string $level): void
+    {
+        self::setLogDisplayLevel(self::getLogLevelByName($level));
+    }
+
+    /**
+     * @param string $level уровень описан в методе getLogLevelByName
+     * @see getLogLevelByName
+     */
+    public static function setLogFileLevelByName(string $level): void
+    {
+        self::setLogFileLevel(self::getLogLevelByName($level));
+    }
+
+    /**
+     * @param string $level уровень логов в виде строки или константы:
+     * - Log::S_ERROR
+     * - Log::S_WARNING
+     * - Log::S_INFO
+     * - Log::S_DEBUG
+     * @return int
+     */
+    private static function getLogLevelByName(string $level): int
+    {
+        switch ($level) {
+            case Log::S_ERROR:
+                return self::A_ERROR;
+            case Log::S_WARNING:
+                return self::A_ERROR | self::A_WARNING;
+            case Log::S_INFO:
+                return self::A_ALL & ~self::A_DEBUG;
+            case Log::S_DEBUG:
+                return self::A_ALL;
+            default:
+                throw new Error('Неизвестный уровень логов');
+        }
     }
 }
