@@ -154,7 +154,7 @@ Log::setup(LOG_PATH);
 // Тест установки директивы вывода ошибок
 {
     ini_set("display_errors", "off");
-    Log::setDisplayLogs(true);
+    Log::setPhpDisplayErrors(true);
     if (ini_get("display_errors") === "off") {
         printFailedTest("Тест установки директивы вывода ошибок",
             "on",
@@ -163,11 +163,11 @@ Log::setup(LOG_PATH);
     }
     ini_set("display_errors", "on");
 }
-Log::setDisplayLogs(false);
+Log::setPhpDisplayErrors(false);
 // Тест установки директивы уровня вывода ошибок PHP
 {
     error_reporting(E_ALL);
-    Log::setPhpReportingLevel(E_NOTICE);
+    Log::setPhpErrorReportingLevel(E_NOTICE);
     if ((int)ini_get("error_reporting") !== E_NOTICE) {
         printFailedTest("Тест установки директивы вывода ошибок",
             (string)E_NOTICE,
@@ -235,7 +235,7 @@ error_reporting(E_ALL);
  */
 // Тест на уровень Info
 {
-    Log::setLogReportingLevel(Log::A_INFO);
+    Log::setLogFileLevel(Log::A_INFO);
     Log::info("Info message");
     Log::warning("Warning message");
     Log::error("Error message");
@@ -247,7 +247,7 @@ error_reporting(E_ALL);
 }
 // Тест на уровень Info и Error
 {
-    Log::setLogReportingLevel(Log::A_INFO | Log::A_ERROR);
+    Log::setLogFileLevel(Log::A_INFO | Log::A_ERROR);
     Log::info("Info message");
     Log::warning("Warning message");
     Log::error("Error message");

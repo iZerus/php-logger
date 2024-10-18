@@ -8,17 +8,18 @@ use Error;
 /**
  * Статический логгер с ротацией
  * @author iZerus
- * @version 1.0
+ * @version 2.0
  */
 final class Log
 {
+    const A_NONE = 0;
     const A_DEBUG = 2;
     const A_INFO = 4;
     const A_WARNING = 8;
     const A_ERROR = 16;
     const A_ALL = 32767;
     private static int $logReportingLevel = self::A_ALL;
-    private static bool $displayLogs = false;
+    private static int $logDisplayLevel = self::A_NONE;
     private static string $defaultName = "Application";
     private static bool $initialized = false;
     private static array $timers;
@@ -43,6 +44,8 @@ final class Log
         }
         ini_set("error_log", $path);
         ini_set("log_errors", "1");
+        self::setPhpErrorReportingLevel(E_ALL);
+        self::setPhpDisplayErrors(false);
         self::$initialized = true;
         self::rotate($path, $maxSizeForRotate, $maxRotatedFilesCount);
     }
@@ -130,16 +133,17 @@ final class Log
      * @param int $level константа семейства уровня логов данного класса.
      * Значение при инициализации Log::A_ALL
      */
-    public static function setLogReportingLevel(int $level): void
+    public static function setLogFileLevel(int $level): void
     {
         self::$logReportingLevel = $level;
     }
 
     /**
-     * @param int $level константа семейства уровня ошибок PHP
+     * @param int $level константа семейства уровня ошибок PHP.
+     * Значение при инициализации E_ALL
      * @link https://www.php.net/manual/ru/errorfunc.constants.php
      */
-    public static function setPhpReportingLevel(int $level): void
+    public static function setPhpErrorReportingLevel(int $level): void
     {
         error_reporting($level);
     }
@@ -172,9 +176,10 @@ final class Log
         $name = !empty($name) ? $name : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
         error_log($text);
-        if (self::$displayLogs) {
-            print $text . PHP_EOL;
+        if (!($level & self::$logDisplayLevel)) {
+            return;
         }
+        print $text . PHP_EOL;
     }
 
     private static function varDump($value): string
@@ -201,9 +206,22 @@ final class Log
         self::log(self::A_ERROR, $message, $name, $data);
     }
 
-    public static function setDisplayLogs(bool $displayLogs): void
+    /**
+     * @param bool $displayPhpErrors выводить ли ошибки.
+     * Значение при инициализации false
+     * @return void
+     */
+    public static function setPhpDisplayErrors(bool $displayPhpErrors): void
     {
-        self::$displayLogs = $displayLogs;
-        ini_set("display_errors", $displayLogs ? "on" : "off");
+        ini_set("display_errors", $displayPhpErrors ? "on" : "off");
+    }
+
+    /**
+     * @param int $level константа семейства уровня логов данного класса.
+     * Значение при инициализации Log::A_NONE
+     */
+    public static function setLogDisplayLevel(int $level): void
+    {
+        self::$logDisplayLevel = $level;
     }
 }
