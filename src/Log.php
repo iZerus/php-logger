@@ -10,7 +10,6 @@ use Error;
  * @author iZerus
  * @version 2.0
  *
- * @todo Строковый настройщик уровня логов
  * @todo Автоконфигурацию
  */
 final class Log
@@ -143,12 +142,18 @@ final class Log
         }
     }
 
+    /**
+     * Установить имя логгера по умолчанию
+     * @param string $name
+     * @return void
+     */
     public static function setDefaultName(string $name): void
     {
         self::$defaultName = $name;
     }
 
     /**
+     * Установить уровень вывода логов в файле лога
      * @param int $level константа семейства уровня логов данного класса.
      * Значение при инициализации Log::A_ALL
      */
@@ -158,6 +163,7 @@ final class Log
     }
 
     /**
+     * Установить уровень вывода ошибок PHP в файле лога
      * @param int $level константа семейства уровня ошибок PHP.
      * Значение при инициализации E_ALL
      * @link https://www.php.net/manual/ru/errorfunc.constants.php
@@ -226,8 +232,8 @@ final class Log
     }
 
     /**
-     * @param bool $displayPhpErrors выводить ли ошибки.
-     * Значение при инициализации false
+     * Отображать ли ошибки PHP в выходном потоке приложения
+     * @param bool $displayPhpErrors значение при инициализации false
      * @return void
      */
     public static function setPhpDisplayErrors(bool $displayPhpErrors): void
@@ -236,6 +242,7 @@ final class Log
     }
 
     /**
+     * Установить уровень отображения логов в выходном потоке приложения
      * @param int $level константа семейства уровня логов данного класса.
      * Значение при инициализации Log::A_NONE
      */
@@ -245,7 +252,8 @@ final class Log
     }
 
     /**
-     * @param string $level уровень описан в методе getLogLevelByName
+     * Установить уровень отображения логов в выходном потоке приложения
+     * @param string $level значения описаны в методе getLogLevelByName
      * @see getLogLevelByName
      */
     public static function setLogDisplayLevelByName(string $level): void
@@ -254,7 +262,8 @@ final class Log
     }
 
     /**
-     * @param string $level уровень описан в методе getLogLevelByName
+     * Установить уровень вывода логов в файле лога
+     * @param string $level значения описаны в методе getLogLevelByName
      * @see getLogLevelByName
      */
     public static function setLogFileLevelByName(string $level): void
