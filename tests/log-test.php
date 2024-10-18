@@ -239,11 +239,14 @@ error_reporting(E_ALL);
     Log::info("Info message");
     Log::warning("Warning message");
     Log::error("Error message");
+    Log::debug("Debug message");
     if (!matchLogLine("/^Application Info: Info message/", readLastLine(LOG_PATH))) {
         printFailedTest("Тест на уровень Info",
             "[Дата] Application Info: Info message",
             readLastLine(LOG_PATH));
     }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
 }
 // Тест на уровень Info и Error
 {
@@ -251,6 +254,7 @@ error_reporting(E_ALL);
     Log::info("Info message");
     Log::warning("Warning message");
     Log::error("Error message");
+    Log::debug("Debug message");
     if (!matchLogLine("/^Application Info: Info message/", readLastLine(LOG_PATH, 1))) {
         printFailedTest("Тест на уровень Info и Error",
             "[Дата] Application Info: Info message",
@@ -261,6 +265,8 @@ error_reporting(E_ALL);
             "[Дата] Application Error: Error message",
             readLastLine(LOG_PATH));
     }
+    Log::setLogFileLevel(Log::A_ALL);
+    Log::debug("");
 }
 // Тест на строковый уровень error
 {
