@@ -54,10 +54,55 @@ function matchLogLine(string $pattern, string $logLine, bool $matchDate = true)
         }
     }
     if (!$caught) {
-        printFailedTest("Тест на инициализацию",
+        printFailedTest("Тест на использование без инициализации",
             "Будет брошено исключение",
             "Не брошено"
         );
+    }
+}
+
+/*
+ * Инициализация из файла конфигурации
+ */
+// Тест на невозможность создания файла конфигурации
+{
+    $caught = false;
+    try {
+        Log::setupByConfig('test/' . rand(1000, 9999) . '/config.ini');
+    } catch (Error $e) {
+        if (preg_match("/Не удается создать файл конфигурации по пути/", $e->getMessage())) {
+            $caught = true;
+        } else {
+            throw $e;
+        }
+    }
+    if (!$caught) {
+        printFailedTest("Тест на невозможность создания файла конфигурации",
+            "Будет брошено исключение",
+            "Не брошено"
+        );
+    }
+}
+// Тест на содержание файла конфигурации
+{
+    $caught = false;
+    $path = 'test.ini';
+    Log::setupByConfig($path);
+    $expectedContent = <<<CFG
+    # Путь к файлу лога
+    path=latest.log
+    
+    # Максимальный размер файла лога в байтах
+    ;maxSizeForRotate=10000000
+    
+    # Максимальное количество ротаций файла лога 
+    ;maxRotatedFilesCount=10
+    CFG;
+    $content = file_get_contents($path);
+    unlink('latest.log');
+    unlink($path);
+    if (strcmp($content, $expectedContent) !== 0) {
+        printFailedTest("Тест на корректность формирования конфигурации");
     }
 }
 

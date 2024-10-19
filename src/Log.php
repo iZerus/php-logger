@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace iZerus;
 
 use Error;
+use TypeError;
 
 /**
  * Статический логгер с ротацией
@@ -11,31 +12,35 @@ use Error;
  * @version 2.0
  *
  * @todo Автоконфигурацию
+ * @todo Тесты к автоконфигурации
  */
 final class Log
 {
-    const A_NONE = 0;
-    const A_DEBUG = 2;
-    const A_INFO = 4;
-    const A_WARNING = 8;
-    const A_ERROR = 16;
-    const A_ALL = 32767;
+    public const A_NONE = 0;
+    public const A_DEBUG = 2;
+    public const A_INFO = 4;
+    public const A_WARNING = 8;
+    public const A_ERROR = 16;
+    public const A_ALL = 32767;
     /**
      * Все сообщения
      */
-    const S_DEBUG = 'debug';
+    public const S_DEBUG = 'debug';
     /**
      * Все сообщения, кроме отладочных
      */
-    const S_INFO = 'info';
+    public const S_INFO = 'info';
     /**
      * Только сообщения об ошибках и предупреждениях
      */
-    const S_WARNING = 'warning';
+    public const S_WARNING = 'warning';
     /**
      * Только сообщения об ошибках
      */
-    const S_ERROR = 'error';
+    public const S_ERROR = 'error';
+    private const CFG_PATH = 'path';
+    private const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
+    private const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
     private static int $logReportingLevel = self::A_ALL;
     private static int $logDisplayLevel = self::A_NONE;
     private static string $defaultName = "Application";
@@ -66,6 +71,52 @@ final class Log
         self::setPhpDisplayErrors(false);
         self::$initialized = true;
         self::rotate($path, $maxSizeForRotate, $maxRotatedFilesCount);
+    }
+
+    public static function setupByConfig(string $path = 'logger.ini'): void
+    {
+        $defaultConfig = [
+            self::CFG_PATH => 'latest.log',
+            self::CFG_MAX_SIZE_FOR_ROTATE => 10_000_000,
+            self::CFG_MAX_ROTATED_FILES_COUNT => 10,
+        ];
+        if (!file_exists($path)) {
+            self::createConfigFile($path, $defaultConfig);
+        }
+        $config = parse_ini_file($path);
+        if ($config === false) {
+            throw new Error("Ошибка чтения файла конфигурации '$path'");
+        }
+        $config = array_merge($defaultConfig, $config);
+        $maxSizeForRotate = filter_var($config[self::CFG_MAX_SIZE_FOR_ROTATE], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
+        if ($maxSizeForRotate === null) {
+            throw new TypeError(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_SIZE_FOR_ROTATE));
+        }
+        $maxRotatedFilesCount = filter_var($config[self::CFG_MAX_ROTATED_FILES_COUNT], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
+        if ($maxRotatedFilesCount === null) {
+            throw new TypeError(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT));
+        }
+        self::setup($config[self::CFG_PATH], $maxSizeForRotate, $maxRotatedFilesCount);
+    }
+
+    private static function createConfigFile(string $path, array $defaultConfig): void
+    {
+        $pathName = self::CFG_PATH;
+        $maxSizeForRotateName = self::CFG_MAX_SIZE_FOR_ROTATE;
+        $maxRotatedFilesCountName = self::CFG_MAX_ROTATED_FILES_COUNT;
+        $config = <<<CFG
+        # Путь к файлу лога
+        $pathName={$defaultConfig[self::CFG_PATH]}
+        
+        # Максимальный размер файла лога в байтах
+        ;$maxSizeForRotateName={$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
+        
+        # Максимальное количество ротаций файла лога 
+        ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
+        CFG;
+        if (@file_put_contents($path, $config) === false) {
+            throw new Error(sprintf("Не удается создать файл конфигурации по пути %s", $path));
+        }
     }
 
     public static function startTimer(string $key): void
