@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace iZerus;
+namespace PhpLogger;
 
 use Error;
 use TypeError;

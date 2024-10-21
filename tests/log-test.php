@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use iZerus\Log;
+use PhpLogger\Log;
 
 chdir(__DIR__);
 
