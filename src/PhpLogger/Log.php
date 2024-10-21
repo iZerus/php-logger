@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace PhpLogger;
@@ -10,11 +11,9 @@ use TypeError;
  * Статический логгер с ротацией
  * @author iZerus
  * @version 2.0
- *
- * @todo Автоконфигурацию
- * @todo Тесты к автоконфигурации
+ * @todo Автоконфигурация
  */
-final class Log
+class Log
 {
     public const A_NONE = 0;
     public const A_DEBUG = 2;
@@ -41,6 +40,14 @@ final class Log
     private const CFG_PATH = 'path';
     private const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
     private const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
+    public const ERROR_LOG_WITHOUT_SETUP = 1000;
+    public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
+    public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
+    public const ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT = 1003;
+    public const ERROR_TIMER_START_INCORRECT_KEY = 1004;
+    public const ERROR_TIMER_STOP_INCORRECT_KEY = 1005;
+    public const ERROR_TIME_GET_INCORRECT_KEY = 1006;
+
     private static int $logReportingLevel = self::A_ALL;
     private static int $logDisplayLevel = self::A_NONE;
     private static string $defaultName = "Application";
@@ -57,13 +64,13 @@ final class Log
             throw new Error(sprintf("%s не поддерживает версию PHP %s", __CLASS__, $version));
         }
         if (!file_exists($path) && (@file_put_contents($path, '') === false)) {
-            throw new Error(sprintf("Не удается создать файл лога по пути %s", $path));
+            throw new Error(sprintf("Не удается создать файл лога по пути %s", $path), self::ERROR_SETUP_INCORRECT_LOG_PATH);
         }
         if ($maxSizeForRotate < 1) {
-            throw new Error("Значение 'maxSizeForRotate' не может быть меньше или равно нулю");
+            throw new Error("Значение 'maxSizeForRotate' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE);
         }
         if ($maxRotatedFilesCount < 1) {
-            throw new Error("Значение 'maxRotatedFilesCount' не может быть меньше или равно нулю");
+            throw new Error("Значение 'maxRotatedFilesCount' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT);
         }
         ini_set("error_log", $path);
         ini_set("log_errors", "1");
@@ -73,8 +80,9 @@ final class Log
         self::rotate($path, $maxSizeForRotate, $maxRotatedFilesCount);
     }
 
-    public static function setupByConfig(string $path = 'logger.ini'): void
+    private static function setupByConfig(string $path = 'logger.ini'): void
     {
+        // TODO Тестировать метод
         $defaultConfig = [
             self::CFG_PATH => 'latest.log',
             self::CFG_MAX_SIZE_FOR_ROTATE => 10_000_000,
@@ -122,7 +130,7 @@ final class Log
     public static function startTimer(string $key): void
     {
         if (isset(self::$timers[$key])) {
-            throw new Error("Таймер с ключом '$key' уже задан");
+            throw new Error("Таймер с ключом '$key' уже задан", self::ERROR_TIMER_START_INCORRECT_KEY);
         }
         self::$timers[$key] = time();
     }
@@ -130,7 +138,7 @@ final class Log
     public static function stopTimer(string $key): void
     {
         if (!isset(self::$timers[$key])) {
-            throw new Error("Таймер с ключом '$key' не задан");
+            throw new Error("Таймер с ключом '$key' не задан", self::ERROR_TIMER_STOP_INCORRECT_KEY);
         }
         $timing = self::$timers[$key];
         unset(self::$timers[$key]);
@@ -140,7 +148,7 @@ final class Log
     public static function getTime(string $key): int
     {
         if (!isset(self::$timings[$key])) {
-            throw new Error("Тайминг с ключом '$key' не найден или не завершён методом stopTimer()");
+            throw new Error("Тайминг с ключом '$key' не найден или не завершён методом stopTimer()", self::ERROR_TIME_GET_INCORRECT_KEY);
         }
         return self::$timings[$key];
     }
@@ -193,11 +201,6 @@ final class Log
         }
     }
 
-    /**
-     * Установить имя логгера по умолчанию
-     * @param string $name
-     * @return void
-     */
     public static function setDefaultName(string $name): void
     {
         self::$defaultName = $name;
@@ -232,7 +235,7 @@ final class Log
     private static function log(int $level, string $message, string $name = null, $data = null): void
     {
         if (!self::$initialized) {
-            throw new Error(__CLASS__ . " не инициализирован. Используйте метод setup");
+            throw new Error(__CLASS__ . " не инициализирован. Используйте метод setup или setupByConfig", static::ERROR_LOG_WITHOUT_SETUP);
         }
         if (!($level & self::$logReportingLevel)) {
             return;
