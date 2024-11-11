@@ -253,7 +253,7 @@ class Log
             throw new Error("Неизвестный уровень логирования");
         }
         if ($data) {
-            $data = PHP_EOL . "Data: " . self::varDump($data);
+            $data = PHP_EOL . print_r($data, true);
         }
         $name = !empty($name) ? $name : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
@@ -262,15 +262,6 @@ class Log
             return;
         }
         print $text . PHP_EOL;
-    }
-
-    private static function varDump($value): string
-    {
-        ob_start();
-        var_dump($value);
-        $content = trim(ob_get_contents());
-        ob_end_clean();
-        return $content;
     }
 
     public static function info(string $message, string $name = null, $data = null): void
