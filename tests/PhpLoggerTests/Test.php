@@ -45,7 +45,7 @@ abstract class Test
         if ($data === false) {
             throw new Error('Не удалось прочитать файл лога');
         }
-        return trim($data[count($data) - 1 - $offset]);
+        return $data[count($data) - 1 - $offset];
     }
 
     protected function matchLastLog(string $path, string $pattern, int $offset = 0, bool $matchDate = true): bool

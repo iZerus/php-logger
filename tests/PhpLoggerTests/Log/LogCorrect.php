@@ -36,8 +36,11 @@ abstract class LogCorrect extends Test
     private function testMessageWithData(string $path): bool
     {
         $this->logWithData();
-        $testMessage = $this->matchLastLog($path, "/^Application {$this->getType()}: {$this->getMessage()}/", 1);
-        $testData = $this->matchLastLog($path, "/^Data: int\({$this->getData()}\)$/", 0, false);
+        $testMessage = $this->matchLastLog($path, "/^Application {$this->getType()}: {$this->getMessage()}/", 5);
+        $testData = $this->matchLastLog($path, "/^Array$/", 4, false);
+        $testData = $testData && $this->matchLastLog($path, "/^\($/", 3, false);
+        $testData = $testData && $this->matchLastLog($path, "/^\s{4}\[foo] => bar$/", 2, false);
+        $testData = $testData && $this->matchLastLog($path, "/^\)$/", 1, false);
         return $testMessage && $testData;
     }
 
@@ -64,8 +67,8 @@ abstract class LogCorrect extends Test
         return 'Bar';
     }
 
-    final protected function getData(): int
+    final protected function getData(): array
     {
-        return 128;
+        return ['foo' => 'bar'];
     }
 }
