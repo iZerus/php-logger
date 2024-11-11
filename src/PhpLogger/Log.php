@@ -145,6 +145,9 @@ class Log
         self::$timings[$key] = time() - $timing;
     }
 
+    /**
+     * Возвращает время в секундах
+     */
     public static function getTime(string $key): int
     {
         if (!isset(self::$timings[$key])) {
