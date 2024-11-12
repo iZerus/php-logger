@@ -21,6 +21,7 @@ class Log
     public const A_WARNING = 8;
     public const A_ERROR = 16;
     public const A_ALL = 32767;
+    public const A_NOT_ALL = -32767;
     /**
      * Все сообщения
      */
