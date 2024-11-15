@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace PhpLogger;
 
-use Error;
-use TypeError;
+use DomainException;
+use InvalidArgumentException;
+use LogicException;
+use OutOfRangeException;
+use RuntimeException;
+use UnexpectedValueException;
 
 /**
  * Статический логгер с ротацией
@@ -61,16 +65,16 @@ class Log
         $version = "$major.$minor";
         $supportedVersions = ["7.4"];
         if (!in_array($version, $supportedVersions)) {
-            throw new Error(sprintf("%s не поддерживает версию PHP %s", __CLASS__, $version));
+            throw new LogicException(sprintf("%s не поддерживает версию PHP %s", __CLASS__, $version));
         }
         if (!file_exists($path) && (@file_put_contents($path, '') === false)) {
-            throw new Error(sprintf("Не удается создать файл лога по пути %s", $path), self::ERROR_SETUP_INCORRECT_LOG_PATH);
+            throw new RuntimeException(sprintf("Не удается создать файл лога по пути %s", $path), self::ERROR_SETUP_INCORRECT_LOG_PATH);
         }
         if ($maxSizeForRotate < 1) {
-            throw new Error("Значение 'maxSizeForRotate' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE);
+            throw new InvalidArgumentException("Значение 'maxSizeForRotate' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE);
         }
         if ($maxRotatedFilesCount < 1) {
-            throw new Error("Значение 'maxRotatedFilesCount' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT);
+            throw new InvalidArgumentException("Значение 'maxRotatedFilesCount' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT);
         }
         ini_set("error_log", $path);
         ini_set("log_errors", "1");
@@ -93,16 +97,16 @@ class Log
         }
         $config = parse_ini_file($path);
         if ($config === false) {
-            throw new Error("Ошибка чтения файла конфигурации '$path'");
+            throw new RuntimeException("Ошибка чтения файла конфигурации '$path'");
         }
         $config = array_merge($defaultConfig, $config);
         $maxSizeForRotate = filter_var($config[self::CFG_MAX_SIZE_FOR_ROTATE], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         if ($maxSizeForRotate === null) {
-            throw new TypeError(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_SIZE_FOR_ROTATE));
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_SIZE_FOR_ROTATE));
         }
         $maxRotatedFilesCount = filter_var($config[self::CFG_MAX_ROTATED_FILES_COUNT], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         if ($maxRotatedFilesCount === null) {
-            throw new TypeError(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT));
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT));
         }
         self::setup($config[self::CFG_PATH], $maxSizeForRotate, $maxRotatedFilesCount);
     }
@@ -123,14 +127,14 @@ class Log
         ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
-            throw new Error(sprintf("Не удается создать файл конфигурации по пути %s", $path));
+            throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path));
         }
     }
 
     public static function startTimer(string $key): void
     {
         if (isset(self::$timers[$key])) {
-            throw new Error("Таймер с ключом '$key' уже задан", self::ERROR_TIMER_START_INCORRECT_KEY);
+            throw new LogicException("Таймер с ключом '$key' уже запущен", self::ERROR_TIMER_START_INCORRECT_KEY);
         }
         self::$timers[$key] = time();
     }
@@ -138,7 +142,7 @@ class Log
     public static function stopTimer(string $key): void
     {
         if (!isset(self::$timers[$key])) {
-            throw new Error("Таймер с ключом '$key' не задан", self::ERROR_TIMER_STOP_INCORRECT_KEY);
+            throw new OutOfRangeException("Таймер с ключом '$key' не задан", self::ERROR_TIMER_STOP_INCORRECT_KEY);
         }
         $timing = self::$timers[$key];
         unset(self::$timers[$key]);
@@ -151,7 +155,7 @@ class Log
     public static function getTime(string $key): int
     {
         if (!isset(self::$timings[$key])) {
-            throw new Error("Тайминг с ключом '$key' не найден или не завершён методом stopTimer()", self::ERROR_TIME_GET_INCORRECT_KEY);
+            throw new OutOfRangeException("Тайминг с ключом '$key' не найден или не завершён методом stopTimer()", self::ERROR_TIME_GET_INCORRECT_KEY);
         }
         return self::$timings[$key];
     }
@@ -190,17 +194,17 @@ class Log
                     unlink($directory . '/' . $rotatedFileName);
                 } else {
                     if (!rename($directory . '/' . $rotatedFileName, $path . "." . $newIndex)) {
-                        throw new Error('Не удалось увеличить (переименовать) индекс ротированного лога');
+                        throw new RuntimeException('Не удалось увеличить (переименовать) индекс ротированного лога');
                     }
                 }
             }
         }
         // Ротируем текущий файл лога
         if (!rename($path, $directory . '/' . $logName . "." . 1)) {
-            throw new Error('Не удалось ротировать текущий лог');
+            throw new RuntimeException('Не удалось ротировать текущий лог');
         }
         if (@file_put_contents($path, '') === false) {
-            throw new Error(sprintf("Не удается создать файл лога по пути %s", $path));
+            throw new RuntimeException(sprintf("Не удается создать файл лога по пути %s", $path));
         }
     }
 
@@ -238,7 +242,7 @@ class Log
     private static function log(int $level, string $message, string $name = null, $data = null): void
     {
         if (!self::$initialized) {
-            throw new Error(__CLASS__ . " не инициализирован. Используйте метод setup или setupByConfig", static::ERROR_LOG_WITHOUT_SETUP);
+            throw new LogicException(__CLASS__ . " не инициализирован. Используйте метод setup или setupByConfig", static::ERROR_LOG_WITHOUT_SETUP);
         }
         if (!($level & self::$logReportingLevel)) {
             return;
@@ -250,7 +254,7 @@ class Log
             self::A_ERROR => "Error"
         ];
         if (!key_exists($level, $levelNames)) {
-            throw new Error("Неизвестный уровень логирования");
+            throw new DomainException("Неизвестный уровень логирования");
         }
         if ($data) {
             $data = PHP_EOL . print_r($data, true);
@@ -339,7 +343,7 @@ class Log
             case Log::S_DEBUG:
                 return self::A_ALL;
             default:
-                throw new Error('Неизвестный уровень логов');
+                throw new DomainException('Неизвестный уровень логов');
         }
     }
 }
