@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\Timer;
 
-use Error;
+use OutOfRangeException;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
 
@@ -24,7 +24,7 @@ class TimerStopIncorrectKey extends Test
     {
         try {
             Log::stopTimer('foo');
-        } catch (Error $e) {
+        } catch (OutOfRangeException $e) {
             return $e->getCode() === Log::ERROR_TIMER_STOP_INCORRECT_KEY;
         }
         return true;
@@ -35,7 +35,7 @@ class TimerStopIncorrectKey extends Test
         try {
             Log::startTimer('foo');
             Log::stopTimer('bar');
-        } catch (Error $e) {
+        } catch (OutOfRangeException $e) {
             return $e->getCode() === Log::ERROR_TIMER_STOP_INCORRECT_KEY;
         }
         return true;
@@ -46,7 +46,7 @@ class TimerStopIncorrectKey extends Test
         try {
             Log::stopTimer('foo');
             Log::stopTimer('foo');
-        } catch (Error $e) {
+        } catch (OutOfRangeException $e) {
             return $e->getCode() === Log::ERROR_TIMER_STOP_INCORRECT_KEY;
         }
         return true;

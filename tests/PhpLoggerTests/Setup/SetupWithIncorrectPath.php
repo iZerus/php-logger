@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\Setup;
 
-use Error;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
+use RuntimeException;
 
 class SetupWithIncorrectPath extends Test
 {
@@ -16,7 +16,7 @@ class SetupWithIncorrectPath extends Test
     {
         try {
             Log::setup(rand(1000, 9999) . '/incorrect.log');
-        } catch (Error $e) {
+        } catch (RuntimeException $e) {
             return $e->getCode() === Log::ERROR_SETUP_INCORRECT_LOG_PATH;
         }
         return false;

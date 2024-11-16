@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\Log;
 
-use Error;
+use LogicException;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
 
@@ -19,7 +19,7 @@ class LogWithoutSetup extends Test
             Log::info('');
             Log::warning('');
             Log::error('');
-        } catch (Error $e) {
+        } catch (LogicException $e) {
             return $e->getCode() === Log::ERROR_LOG_WITHOUT_SETUP;
         }
         return false;

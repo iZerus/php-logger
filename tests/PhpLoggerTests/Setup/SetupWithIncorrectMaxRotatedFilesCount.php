@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\Setup;
 
-use Error;
+use InvalidArgumentException;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
 
@@ -23,7 +23,7 @@ class SetupWithIncorrectMaxRotatedFilesCount extends Test
     {
         try {
             Log::setup(LOG_FOLDER . 'SetupWithIncorrectMaxRotatedFilesCount.log', 10_000, 0);
-        } catch (Error $e) {
+        } catch (InvalidArgumentException $e) {
             return $e->getCode() === Log::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT;
         }
         return false;
@@ -33,7 +33,7 @@ class SetupWithIncorrectMaxRotatedFilesCount extends Test
     {
         try {
             Log::setup(LOG_FOLDER . 'SetupWithIncorrectMaxRotatedFilesCount.log', 10_000, -1);
-        } catch (Error $e) {
+        } catch (InvalidArgumentException $e) {
             return $e->getCode() === Log::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT;
         }
         return false;
