@@ -52,18 +52,24 @@ class Log
     public const ERROR_TIMER_STOP_INCORRECT_KEY = 1005;
     public const ERROR_TIME_GET_INCORRECT_KEY = 1006;
 
-    private static int $logReportingLevel = self::A_ALL;
-    private static int $logDisplayLevel = self::A_NONE;
-    private static string $defaultName = "Application";
-    private static bool $initialized = false;
-    private static array $timers;
-    private static array $timings;
+    /** @var int */
+    private static $logReportingLevel = self::A_ALL;
+    /** @var int */
+    private static $logDisplayLevel = self::A_NONE;
+    /** @var string */
+    private static $defaultName = "Application";
+    /** @var bool */
+    private static $initialized = false;
+    /** @var int[] */
+    private static $timers;
+    /** @var int[] */
+    private static $timings;
 
-    public static function setup(string $path, int $maxSizeForRotate = 10_000_000, int $maxRotatedFilesCount = 10): void
+    public static function setup(string $path, int $maxSizeForRotate = 10000000, int $maxRotatedFilesCount = 10): void
     {
         list($major, $minor) = explode(".", phpversion());
         $version = "$major.$minor";
-        $supportedVersions = ["7.4"];
+        $supportedVersions = ["7.3", "7.4"];
         if (!in_array($version, $supportedVersions)) {
             throw new LogicException(sprintf("%s не поддерживает версию PHP %s", __CLASS__, $version));
         }
@@ -89,7 +95,7 @@ class Log
         // TODO Тестировать метод
         $defaultConfig = [
             self::CFG_PATH => 'latest.log',
-            self::CFG_MAX_SIZE_FOR_ROTATE => 10_000_000,
+            self::CFG_MAX_SIZE_FOR_ROTATE => 10000000,
             self::CFG_MAX_ROTATED_FILES_COUNT => 10,
         ];
         if (!file_exists($path)) {
