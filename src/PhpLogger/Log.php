@@ -51,6 +51,7 @@ class Log
     public const ERROR_TIMER_START_INCORRECT_KEY = 1004;
     public const ERROR_TIMER_STOP_INCORRECT_KEY = 1005;
     public const ERROR_TIME_GET_INCORRECT_KEY = 1006;
+    public const ERROR_INVALID_LOG_NAME = 1007;
 
     /** @var int */
     private static $logReportingLevel = self::A_ALL;
@@ -216,7 +217,7 @@ class Log
 
     public static function setDefaultName(string $name): void
     {
-        self::$defaultName = $name;
+        self::$defaultName = self::filterName($name);
     }
 
     /**
@@ -265,13 +266,26 @@ class Log
         if ($data) {
             $data = PHP_EOL . print_r($data, true);
         }
-        $name = !empty($name) ? $name : self::$defaultName;
+        $name = !empty($name) ? self::filterName($name) : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
         error_log($text);
         if (!($level & self::$logDisplayLevel)) {
             return;
         }
         print $text . PHP_EOL;
+    }
+
+    /**
+     * Фильтрует имя, убирая пробельные символы с начала и конца.
+     * Имя не должно содержать пробельных символов внутри
+     */
+    private static function filterName(string $name): string
+    {
+        $filteredName = trim($name);
+        if (preg_match('/\s+/', $filteredName)) {
+            throw new InvalidArgumentException("Имя логгера '$filteredName' содержит пробельные символы", self::ERROR_INVALID_LOG_NAME);
+        }
+        return $filteredName;
     }
 
     public static function info(string $message, string $name = null, $data = null): void
