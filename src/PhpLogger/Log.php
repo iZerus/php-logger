@@ -251,9 +251,6 @@ class Log
         if (!self::$initialized) {
             throw new LogicException(__CLASS__ . " не инициализирован. Используйте метод setup или setupByConfig", static::ERROR_LOG_WITHOUT_SETUP);
         }
-        if (!($level & self::$logReportingLevel)) {
-            return;
-        }
         $levelNames = [
             self::A_DEBUG => "Debug",
             self::A_INFO => "Info",
@@ -268,11 +265,12 @@ class Log
         }
         $name = !empty($name) ? self::filterName($name) : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
-        error_log($text);
-        if (!($level & self::$logDisplayLevel)) {
-            return;
+        if ($level & self::$logReportingLevel) {
+            error_log($text);
         }
-        print $text . PHP_EOL;
+        if ($level & self::$logDisplayLevel) {
+            print $text . PHP_EOL;
+        }
     }
 
     /**
