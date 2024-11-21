@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\Log;
 
+use InvalidArgumentException;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
 use ReflectionClass;
@@ -18,7 +19,12 @@ abstract class LogCorrect extends Test
         $testMessage = $this->testMessage($path);
         $testMessageWithName = $this->testMessageWithName($path);
         $testMessageWithData = $this->testMessageWithData($path);
-        return $testMessage && $testMessageWithName && $testMessageWithData;
+        $testMessageWithNameWithIncorrectName = $this->testMessageWithNameWithIncorrectName();
+        return
+            $testMessage &&
+            $testMessageWithName &&
+            $testMessageWithData &&
+            $testMessageWithNameWithIncorrectName;
     }
 
     private function testMessage(string $path): bool
@@ -49,9 +55,21 @@ abstract class LogCorrect extends Test
         return (new ReflectionClass($this))->getShortName() . '.log';
     }
 
+    private function testMessageWithNameWithIncorrectName(): bool
+    {
+        try {
+            $this->logWithIncorrectName();
+        } catch (InvalidArgumentException $e) {
+            return $e->getCode() == Log::ERROR_INVALID_LOG_NAME;
+        }
+        return false;
+    }
+
     abstract protected function log(): void;
 
     abstract protected function logWithName(): void;
+
+    abstract protected function logWithIncorrectName(): void;
 
     abstract protected function logWithData(): void;
 
@@ -65,6 +83,11 @@ abstract class LogCorrect extends Test
     final protected function getName(): string
     {
         return 'Bar';
+    }
+
+    final protected function getIncorrectName(): string
+    {
+        return 'Foo Bar';
     }
 
     final protected function getData(): array

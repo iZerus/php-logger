@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace PhpLoggerTests\SetDefaultName;
 
+use InvalidArgumentException;
 use PhpLogger\Log;
 use PhpLoggerTests\Test;
 
@@ -21,6 +22,11 @@ class SetDefaultName extends Test
         if (!$this->matchLastLog($path, '/^NewName Info: Foo/')) {
             return false;
         }
-        return true;
+        try {
+            Log::setDefaultName('Foo Bar');
+        } catch (InvalidArgumentException $e) {
+            return $e->getCode() == Log::ERROR_INVALID_LOG_NAME;
+        }
+        return false;
     }
 }

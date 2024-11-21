@@ -30,4 +30,9 @@ class LogErrorCorrect extends LogCorrect
     {
         Log::error($this->getMessage(), null, $this->getData());
     }
+
+    protected function logWithIncorrectName(): void
+    {
+        Log::debug($this->getMessage(), $this->getIncorrectName());
+    }
 }
