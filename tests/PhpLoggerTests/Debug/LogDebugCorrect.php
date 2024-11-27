@@ -35,4 +35,9 @@ class LogDebugCorrect extends LogCorrect
     {
         Log::debug($this->getMessage(), $this->getIncorrectName());
     }
+
+    protected function logWithEmptyName(): void
+    {
+        Log::debug($this->getMessage(), $this->getEmptyName());
+    }
 }

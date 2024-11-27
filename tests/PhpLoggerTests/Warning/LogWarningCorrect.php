@@ -33,6 +33,11 @@ class LogWarningCorrect extends LogCorrect
 
     protected function logWithIncorrectName(): void
     {
-        Log::debug($this->getMessage(), $this->getIncorrectName());
+        Log::warning($this->getMessage(), $this->getIncorrectName());
+    }
+
+    protected function logWithEmptyName(): void
+    {
+        Log::warning($this->getMessage(), $this->getEmptyName());
     }
 }

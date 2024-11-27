@@ -20,11 +20,13 @@ abstract class LogCorrect extends Test
         $testMessageWithName = $this->testMessageWithName($path);
         $testMessageWithData = $this->testMessageWithData($path);
         $testMessageWithNameWithIncorrectName = $this->testMessageWithNameWithIncorrectName();
+        $testMessageWithNameWithEmptyName = $this->testMessageWithNameWithEmptyName();
         return
             $testMessage &&
             $testMessageWithName &&
             $testMessageWithData &&
-            $testMessageWithNameWithIncorrectName;
+            $testMessageWithNameWithIncorrectName &&
+            $testMessageWithNameWithEmptyName;
     }
 
     private function testMessage(string $path): bool
@@ -65,11 +67,23 @@ abstract class LogCorrect extends Test
         return false;
     }
 
+    private function testMessageWithNameWithEmptyName(): bool
+    {
+        try {
+            $this->logWithEmptyName();
+        } catch (InvalidArgumentException $e) {
+            return $e->getCode() == Log::ERROR_EMPTY_LOG_NAME;
+        }
+        return false;
+    }
+
     abstract protected function log(): void;
 
     abstract protected function logWithName(): void;
 
     abstract protected function logWithIncorrectName(): void;
+
+    abstract protected function logWithEmptyName(): void;
 
     abstract protected function logWithData(): void;
 
@@ -88,6 +102,11 @@ abstract class LogCorrect extends Test
     final protected function getIncorrectName(): string
     {
         return 'Foo Bar';
+    }
+
+    final protected function getEmptyName(): string
+    {
+        return '';
     }
 
     final protected function getData(): array

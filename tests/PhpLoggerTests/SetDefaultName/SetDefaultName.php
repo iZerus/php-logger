@@ -27,6 +27,11 @@ class SetDefaultName extends Test
         } catch (InvalidArgumentException $e) {
             return $e->getCode() == Log::ERROR_INVALID_LOG_NAME;
         }
+        try {
+            Log::setDefaultName('');
+        } catch (InvalidArgumentException $e) {
+            return $e->getCode() == Log::ERROR_EMPTY_LOG_NAME;
+        }
         return false;
     }
 }
