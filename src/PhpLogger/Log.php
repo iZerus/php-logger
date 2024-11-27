@@ -52,6 +52,7 @@ class Log
     public const ERROR_TIMER_STOP_INCORRECT_KEY = 1005;
     public const ERROR_TIME_GET_INCORRECT_KEY = 1006;
     public const ERROR_INVALID_LOG_NAME = 1007;
+    public const ERROR_EMPTY_LOG_NAME = 1008;
 
     /** @var int */
     private static $logReportingLevel = self::A_ALL;
@@ -263,7 +264,7 @@ class Log
         if ($data) {
             $data = PHP_EOL . print_r($data, true);
         }
-        $name = !empty($name) ? self::filterName($name) : self::$defaultName;
+        $name = $name !== null ? self::filterName($name) : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
         if ($level & self::$logReportingLevel) {
             error_log($text);
@@ -280,6 +281,9 @@ class Log
     private static function filterName(string $name): string
     {
         $filteredName = trim($name);
+        if (empty($filteredName)) {
+            throw new InvalidArgumentException("Имя логгера '$filteredName' не может быть пустым", self::ERROR_EMPTY_LOG_NAME);
+        }
         if (preg_match('/\s+/', $filteredName)) {
             throw new InvalidArgumentException("Имя логгера '$filteredName' содержит пробельные символы", self::ERROR_INVALID_LOG_NAME);
         }
