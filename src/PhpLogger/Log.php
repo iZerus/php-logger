@@ -67,7 +67,7 @@ class Log
     /** @var int[] */
     private static $timings;
 
-    public static function setup(string $path, int $maxSizeForRotate = 10000000, int $maxRotatedFilesCount = 10): void
+    public static function setup(string $path, int $maxSizeForRotate = 10000000, int $maxRotatedFilesCount = 9): void
     {
         list($major, $minor) = explode(".", phpversion());
         $version = "$major.$minor";
