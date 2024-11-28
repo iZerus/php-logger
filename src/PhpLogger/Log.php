@@ -225,6 +225,9 @@ class Log
         }
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     public static function setDefaultName(string $name): void
     {
         self::$defaultName = self::filterName($name);
@@ -251,11 +254,17 @@ class Log
         error_reporting($level);
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     public static function debug(string $message, string $name = null, $data = null): void
     {
         self::log(self::A_DEBUG, $message, $name, $data);
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     private static function log(int $level, string $message, string $name = null, $data = null): void
     {
         if (!self::$initialized) {
@@ -284,8 +293,7 @@ class Log
     }
 
     /**
-     * Фильтрует имя, убирая пробельные символы с начала и конца.
-     * Имя не должно содержать пробельных символов внутри
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
      */
     private static function filterName(string $name): string
     {
@@ -299,16 +307,25 @@ class Log
         return $filteredName;
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     public static function info(string $message, string $name = null, $data = null): void
     {
         self::log(self::A_INFO, $message, $name, $data);
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     public static function warning(string $message, string $name = null, $data = null): void
     {
         self::log(self::A_WARNING, $message, $name, $data);
     }
 
+    /**
+     * @throws InvalidArgumentException если имя пустое или содержит пробел
+     */
     public static function error(string $message, string $name = null, $data = null): void
     {
         self::log(self::A_ERROR, $message, $name, $data);
