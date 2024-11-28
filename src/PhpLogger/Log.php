@@ -368,4 +368,13 @@ class Log
                 throw new DomainException('Неизвестный уровень логов');
         }
     }
+
+    public static function disableXDebugLogs(bool $disabled = true): void
+    {
+        if ($disabled) {
+            ini_set("xdebug.log_level", "0");
+        } else {
+            ini_restore("xdebug.log_level");
+        }
+    }
 }
