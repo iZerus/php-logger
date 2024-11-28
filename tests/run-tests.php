@@ -7,6 +7,8 @@ chdir(__DIR__);
 use PhpLoggerTests\Debug\LogDebugCorrect;
 use PhpLoggerTests\Error\LogErrorCorrect;
 use PhpLoggerTests\Info\LogInfoCorrect;
+use PhpLoggerTests\isInitialized\IsInitializedAfterSetup;
+use PhpLoggerTests\isInitialized\IsInitializedBeforeSetup;
 use PhpLoggerTests\Log\LogWithoutSetup;
 use PhpLoggerTests\Rotate\Rotate;
 use PhpLoggerTests\SetDefaultName\SetDefaultName;
@@ -34,6 +36,8 @@ const LOG_FOLDER = '../logs/';
 
 /** @var Test[] $tests */
 $tests = [
+    // IsInitialized
+    new IsInitializedBeforeSetup(),
     // Log
     new LogWithoutSetup(),
     // Setup
@@ -42,6 +46,8 @@ $tests = [
     new SetupWithIncorrectMaxRotatedFilesCount(),
     new SetupWithNewLogFile(),
     new SetupCorrect(),
+    // IsInitialized
+    new IsInitializedAfterSetup(),
     // Log
     new LogDebugCorrect(),
     new LogInfoCorrect(),
