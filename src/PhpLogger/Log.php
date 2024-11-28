@@ -96,6 +96,11 @@ class Log
         self::rotate($path, $maxSizeForRotate, $maxRotatedFilesCount);
     }
 
+    public static function isInitialized(): bool
+    {
+        return self::$initialized;
+    }
+
     private static function setupByConfig(string $path = 'logger.ini'): void
     {
         // TODO Тестировать метод
