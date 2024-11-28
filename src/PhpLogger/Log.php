@@ -84,8 +84,12 @@ class Log
         if ($maxRotatedFilesCount < 1) {
             throw new InvalidArgumentException("Значение 'maxRotatedFilesCount' не может быть меньше или равно нулю", self::ERROR_SETUP_INCORRECT_MAX_ROTATED_FILES_COUNT);
         }
-        ini_set("error_log", $path);
-        ini_set("log_errors", "1");
+        if (ini_set("error_log", $path) === false) {
+            throw new RuntimeException('Не удалось установить значение error_log в ini');
+        }
+        if (ini_set("log_errors", "1") === false) {
+            throw new RuntimeException('Не удалось установить значение log_errors в ini');
+        }
         self::setPhpErrorReportingLevel(E_ALL);
         self::setPhpDisplayErrors(false);
         self::$initialized = true;
@@ -312,7 +316,9 @@ class Log
      */
     public static function setPhpDisplayErrors(bool $displayPhpErrors): void
     {
-        ini_set("display_errors", $displayPhpErrors ? "on" : "off");
+        if (ini_set("display_errors", $displayPhpErrors ? "on" : "off") === false) {
+            throw new RuntimeException('Не удалось установить значение display_errors в ini');
+        }
     }
 
     /**
@@ -372,7 +378,9 @@ class Log
     public static function disableXDebugLogs(bool $disabled = true): void
     {
         if ($disabled) {
-            ini_set("xdebug.log_level", "0");
+            if (ini_set("xdebug.log_level", "0") === false) {
+                throw new RuntimeException('Не удалось установить значение xdebug.log_level в ini');
+            }
         } else {
             ini_restore("xdebug.log_level");
         }
