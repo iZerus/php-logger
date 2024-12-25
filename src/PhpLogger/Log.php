@@ -284,11 +284,15 @@ class Log
         }
         $name = $name !== null ? self::filterName($name) : self::$defaultName;
         $text = "$name $levelNames[$level]: " . $message . $data;
-        if ($level & self::$logReportingLevel) {
-            error_log($text);
-        }
         if ($level & self::$logDisplayLevel) {
             print $text . PHP_EOL;
+        }
+        $pid = getmypid();
+        if ($pid === false) {
+            $pid = '-';
+        }
+        if ($level & self::$logReportingLevel) {
+            error_log("$pid $text");
         }
     }
 
