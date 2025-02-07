@@ -53,6 +53,8 @@ class Log
     public const ERROR_TIME_GET_INCORRECT_KEY = 1006;
     public const ERROR_INVALID_LOG_NAME = 1007;
     public const ERROR_EMPTY_LOG_NAME = 1008;
+    public const ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH = 1009;
+    public const ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT = 1010;
 
     /** @var int */
     private static $logReportingLevel = self::A_ALL;
@@ -101,9 +103,8 @@ class Log
         return self::$initialized;
     }
 
-    private static function setupByConfig(string $path = 'logger.ini'): void
+    public static function setupByConfig(string $path = 'logger.ini'): void
     {
-        // TODO Тестировать метод
         $defaultConfig = [
             self::CFG_PATH => 'latest.log',
             self::CFG_MAX_SIZE_FOR_ROTATE => 10000000,
@@ -114,7 +115,7 @@ class Log
         }
         $config = parse_ini_file($path);
         if ($config === false) {
-            throw new RuntimeException("Ошибка чтения файла конфигурации '$path'");
+            throw new RuntimeException("Ошибка чтения файла конфигурации '$path'", self::ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT);
         }
         $config = array_merge($defaultConfig, $config);
         $maxSizeForRotate = filter_var($config[self::CFG_MAX_SIZE_FOR_ROTATE], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
@@ -135,16 +136,19 @@ class Log
         $maxRotatedFilesCountName = self::CFG_MAX_ROTATED_FILES_COUNT;
         $config = <<<CFG
         # Путь к файлу лога
+        # По умолчанию: {$defaultConfig[self::CFG_PATH]}
         $pathName={$defaultConfig[self::CFG_PATH]}
         
         # Максимальный размер файла лога в байтах
+        # По умолчанию: {$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
         ;$maxSizeForRotateName={$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
         
-        # Максимальное количество ротаций файла лога 
+        # Максимальное количество ротаций файла лога
+        # По умолчанию: {$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
         ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
-            throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path));
+            throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
         }
     }
 
