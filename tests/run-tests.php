@@ -23,6 +23,8 @@ use PhpLoggerTests\Setup\SetupWithIncorrectMaxRotatedFilesCount;
 use PhpLoggerTests\Setup\SetupWithIncorrectMaxSizeForRotate;
 use PhpLoggerTests\Setup\SetupWithIncorrectPath;
 use PhpLoggerTests\Setup\SetupWithNewLogFile;
+use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectMaxRotatedFilesCount;
+use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectMaxSizeForRotate;
 use PhpLoggerTests\SetupByConfig\SetupByConfigWithErrorFile;
 use PhpLoggerTests\Test;
 use PhpLoggerTests\Timer\TimeGetIncorrectKey;
@@ -49,6 +51,8 @@ $tests = [
     new SetupCorrect(),
     // Setup by config
     new SetupByConfigWithErrorFile(),
+    new SetupByConfigIncorrectMaxSizeForRotate(),
+    new SetupByConfigIncorrectMaxRotatedFilesCount(),
     // IsInitialized
     new IsInitializedAfterSetup(),
     // Log

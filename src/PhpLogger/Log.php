@@ -41,9 +41,9 @@ class Log
      * Только сообщения об ошибках
      */
     public const S_ERROR = 'error';
-    private const CFG_PATH = 'path';
-    private const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
-    private const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
+    public const CFG_PATH = 'path';
+    public const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
+    public const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -55,6 +55,7 @@ class Log
     public const ERROR_EMPTY_LOG_NAME = 1008;
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH = 1009;
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT = 1010;
+    public const ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE = 1011;
 
     /** @var int */
     private static $logReportingLevel = self::A_ALL;
@@ -120,11 +121,11 @@ class Log
         $config = array_merge($defaultConfig, $config);
         $maxSizeForRotate = filter_var($config[self::CFG_MAX_SIZE_FOR_ROTATE], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         if ($maxSizeForRotate === null) {
-            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_SIZE_FOR_ROTATE));
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_SIZE_FOR_ROTATE), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
         $maxRotatedFilesCount = filter_var($config[self::CFG_MAX_ROTATED_FILES_COUNT], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         if ($maxRotatedFilesCount === null) {
-            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT));
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
         self::setup($config[self::CFG_PATH], $maxSizeForRotate, $maxRotatedFilesCount);
     }
