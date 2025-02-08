@@ -44,6 +44,7 @@ class Log
     public const CFG_PATH = 'path';
     public const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
     public const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
+    public const CFG_PHP_DISPLAY_ERRORS = 'phpDisplayErrors';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -127,7 +128,12 @@ class Log
         if ($maxRotatedFilesCount === null) {
             throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_MAX_ROTATED_FILES_COUNT), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
+        $phpDisplayErrors = filter_var($config[self::CFG_PHP_DISPLAY_ERRORS], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($phpDisplayErrors === null) {
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_DISPLAY_ERRORS), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
+        }
         self::setup($config[self::CFG_PATH], $maxSizeForRotate, $maxRotatedFilesCount);
+        self::setPhpDisplayErrors($phpDisplayErrors);
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
@@ -135,6 +141,10 @@ class Log
         $pathName = self::CFG_PATH;
         $maxSizeForRotateName = self::CFG_MAX_SIZE_FOR_ROTATE;
         $maxRotatedFilesCountName = self::CFG_MAX_ROTATED_FILES_COUNT;
+        $phpDisplayErrors = self::CFG_PHP_DISPLAY_ERRORS;
+        $defaultConfig = array_map(function ($x) {
+            return var_export($x, true);
+        }, $defaultConfig);
         $config = <<<CFG
         # Путь к файлу лога
         # По умолчанию: {$defaultConfig[self::CFG_PATH]}
@@ -147,6 +157,10 @@ class Log
         # Максимальное количество ротаций файла лога
         # По умолчанию: {$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
         ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
+        
+        # Отображать ошибки PHP
+        # По умолчанию: {$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
+        ;$phpDisplayErrors={$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
