@@ -115,7 +115,9 @@ class Log
     {
         $defaultConfig = [
             self::CFG_MAX_SIZE_FOR_ROTATE => 10000000,
-            self::CFG_MAX_ROTATED_FILES_COUNT => 10,
+            self::CFG_MAX_ROTATED_FILES_COUNT => 9,
+            self::CFG_PHP_DISPLAY_ERRORS => false,
+            self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL,
         ];
         if (!file_exists($configPath)) {
             self::createConfigFile($configPath, $defaultConfig);
