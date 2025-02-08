@@ -170,7 +170,7 @@ class Log
         ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
         ;$phpDisplayErrors={$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
         
-        ; Уровень вывода ошибок PHP
+        ; Уровень фиксирования ошибок PHP
         ; Вычислить можно с помощью констант E_ERROR, E_NOTICE и т.д.
         ; Примеры:
         ; E_ALL = 32767
