@@ -46,6 +46,7 @@ class Log
     public const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
     public const CFG_PHP_DISPLAY_ERRORS = 'phpDisplayErrors';
     public const CFG_PHP_ERROR_REPORTING_LEVEL = 'phpErrorReportingLevel';
+    public const CFG_PHP_DISABLE_XDEBUG_LOG = 'phpDisableXDebugLog';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -118,6 +119,7 @@ class Log
             self::CFG_MAX_ROTATED_FILES_COUNT => 9,
             self::CFG_PHP_DISPLAY_ERRORS => false,
             self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL,
+            self::CFG_PHP_DISABLE_XDEBUG_LOG => false,
         ];
         if (!file_exists($configPath)) {
             self::createConfigFile($configPath, $defaultConfig);
@@ -143,9 +145,16 @@ class Log
         if ($phpErrorReportingLevel === null) {
             throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_ERROR_REPORTING_LEVEL), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
+        $phpDisableXDebugLog = filter_var($config[self::CFG_PHP_DISABLE_XDEBUG_LOG], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($phpDisableXDebugLog === null) {
+            throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_DISABLE_XDEBUG_LOG), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
+        }
         self::setup($logPath, $maxSizeForRotate, $maxRotatedFilesCount);
         self::setPhpDisplayErrors($phpDisplayErrors);
         self::setPhpErrorReportingLevel($phpErrorReportingLevel);
+        if ($phpDisableXDebugLog) {
+            self::disableXDebugLogs();
+        }
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
@@ -154,6 +163,7 @@ class Log
         $maxRotatedFilesCountName = self::CFG_MAX_ROTATED_FILES_COUNT;
         $phpDisplayErrors = self::CFG_PHP_DISPLAY_ERRORS;
         $phpErrorReportingLevel = self::CFG_PHP_ERROR_REPORTING_LEVEL;
+        $phpDisableXDebugLog = self::CFG_PHP_DISABLE_XDEBUG_LOG;
         $defaultConfig = array_map(function ($x) {
             return var_export($x, true);
         }, $defaultConfig);
@@ -177,6 +187,11 @@ class Log
         ; E_ALL & ~E_NOTICE = 32759
         ; По умолчанию: {$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
         ;$phpErrorReportingLevel={$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
+        
+        ; Отключение вывода логов PHP XDebug
+        ; Отключать следует только при необходимости, если используется XDebug
+        ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
+        ;$phpDisableXDebugLog={$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
