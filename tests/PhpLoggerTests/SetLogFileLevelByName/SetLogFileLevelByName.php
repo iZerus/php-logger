@@ -78,6 +78,21 @@ class SetLogFileLevelByName extends Test
             return false;
         }
 
+        // NONE
+        $this->testLevel(Log::S_NONE);
+        if ($this->matchLastLog(self::PATH, "/^Application Debug: {$msg}/", 3)) {
+            return false;
+        }
+        if ($this->matchLastLog(self::PATH, "/^Application Info: {$msg}/", 2)) {
+            return false;
+        }
+        if ($this->matchLastLog(self::PATH, "/^Application Warning: {$msg}/", 1)) {
+            return false;
+        }
+        if ($this->matchLastLog(self::PATH, "/^Application Error: {$msg}/")) {
+            return false;
+        }
+
         return true;
     }
 

@@ -41,6 +41,7 @@ class Log
      * Только сообщения об ошибках
      */
     public const S_ERROR = 'error';
+    public const S_NONE = 'none';
     public const CFG_PATH = 'path';
     public const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
     public const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
@@ -413,6 +414,7 @@ class Log
 
     /**
      * @param string $level уровень логов в виде строки или константы:
+     * - Log::S_NONE
      * - Log::S_ERROR
      * - Log::S_WARNING
      * - Log::S_INFO
@@ -422,6 +424,8 @@ class Log
     private static function getLogLevelByName(string $level): int
     {
         switch ($level) {
+            case Log::S_NONE:
+                return self::A_NONE;
             case Log::S_ERROR:
                 return self::A_ERROR;
             case Log::S_WARNING:

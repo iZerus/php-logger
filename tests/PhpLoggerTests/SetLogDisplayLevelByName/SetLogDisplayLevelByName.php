@@ -24,6 +24,8 @@ class SetLogDisplayLevelByName extends Test
         $this->printLevel(Log::S_WARNING);
         print 'Режим error:' . PHP_EOL;
         $this->printLevel(Log::S_ERROR);
+        print 'Режим none:' . PHP_EOL;
+        $this->printLevel(Log::S_NONE);
         return true;
     }
 
