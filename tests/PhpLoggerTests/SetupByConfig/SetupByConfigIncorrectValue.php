@@ -18,4 +18,9 @@ abstract class SetupByConfigIncorrectValue extends Test
     {
         return __DIR__ . '/test.ini';
     }
+
+    protected function getLogPath(): string
+    {
+        return __DIR__ . '/latest.log';
+    }
 }

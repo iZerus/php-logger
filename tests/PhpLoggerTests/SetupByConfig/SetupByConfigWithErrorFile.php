@@ -20,7 +20,7 @@ class SetupByConfigWithErrorFile extends Test
     private function testIncorrectPath(): bool
     {
         try {
-            Log::setupByConfig(rand(1000, 9999) . '/incorrect.ini');
+            Log::setupByConfig($this->getLogPath(), rand(1000, 9999) . '/incorrect.ini');
         } catch (RuntimeException $e) {
             return $e->getCode() === Log::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH;
         }
@@ -33,10 +33,15 @@ class SetupByConfigWithErrorFile extends Test
         // Создадим файл с неверным форматом JSON
         file_put_contents($path, '{}');
         try {
-            Log::setupByConfig($path);
+            Log::setupByConfig($this->getLogPath(), $path);
         } catch (RuntimeException $e) {
             return $e->getCode() === Log::ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT;
         }
         return true;
+    }
+
+    protected function getLogPath(): string
+    {
+        return __DIR__ . '/latest.log';
     }
 }

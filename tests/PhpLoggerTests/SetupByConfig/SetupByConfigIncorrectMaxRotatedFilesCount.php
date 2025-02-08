@@ -15,7 +15,7 @@ class SetupByConfigIncorrectMaxRotatedFilesCount extends SetupByConfigIncorrectV
     {
         $this->createConfig(Log::CFG_MAX_ROTATED_FILES_COUNT, 'foo');
         try {
-            Log::setupByConfig($this->getConfigPath());
+            Log::setupByConfig($this->getLogPath(), $this->getConfigPath());
         } catch (UnexpectedValueException $e) {
             return $e->getCode() === Log::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE;
         }

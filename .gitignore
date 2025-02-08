@@ -1,5 +1,6 @@
 /.idea
 /tests/PhpLoggerTests/SetupByConfig/test.ini
+/tests/PhpLoggerTests/SetupByConfig/latest.log
 /tests/logger.ini
 /tests/latest.log
 /tests/test.php

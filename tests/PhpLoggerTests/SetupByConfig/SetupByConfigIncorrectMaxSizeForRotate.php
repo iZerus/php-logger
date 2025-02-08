@@ -15,7 +15,7 @@ class SetupByConfigIncorrectMaxSizeForRotate extends SetupByConfigIncorrectValue
     {
         $this->createConfig(Log::CFG_MAX_SIZE_FOR_ROTATE, 'foo');
         try {
-            Log::setupByConfig($this->getConfigPath());
+            Log::setupByConfig($this->getLogPath(), $this->getConfigPath());
         } catch (UnexpectedValueException $e) {
             return $e->getCode() === Log::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE;
         }

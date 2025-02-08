@@ -42,7 +42,6 @@ class Log
      */
     public const S_ERROR = 'error';
     public const S_NONE = 'none';
-    public const CFG_PATH = 'path';
     public const CFG_MAX_SIZE_FOR_ROTATE = 'maxSizeForRotate';
     public const CFG_MAX_ROTATED_FILES_COUNT = 'maxRotatedFilesCount';
     public const CFG_PHP_DISPLAY_ERRORS = 'phpDisplayErrors';
@@ -107,19 +106,23 @@ class Log
         return self::$initialized;
     }
 
-    public static function setupByConfig(string $path = 'logger.ini'): void
+    /**
+     * @param string $logPath путь к файлу логов
+     * @param string $configPath путь к INI конфигурации логгера
+     * @return void
+     */
+    public static function setupByConfig(string $logPath, string $configPath): void
     {
         $defaultConfig = [
-            self::CFG_PATH => 'latest.log',
             self::CFG_MAX_SIZE_FOR_ROTATE => 10000000,
             self::CFG_MAX_ROTATED_FILES_COUNT => 10,
         ];
-        if (!file_exists($path)) {
-            self::createConfigFile($path, $defaultConfig);
+        if (!file_exists($configPath)) {
+            self::createConfigFile($configPath, $defaultConfig);
         }
-        $config = parse_ini_file($path);
+        $config = parse_ini_file($configPath);
         if ($config === false) {
-            throw new RuntimeException("Ошибка чтения файла конфигурации '$path'", self::ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT);
+            throw new RuntimeException("Ошибка чтения файла конфигурации '$configPath'", self::ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT);
         }
         $config = array_merge($defaultConfig, $config);
         $maxSizeForRotate = filter_var($config[self::CFG_MAX_SIZE_FOR_ROTATE], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
@@ -138,14 +141,13 @@ class Log
         if ($phpErrorReportingLevel === null) {
             throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_ERROR_REPORTING_LEVEL), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
-        self::setup($config[self::CFG_PATH], $maxSizeForRotate, $maxRotatedFilesCount);
+        self::setup($logPath, $maxSizeForRotate, $maxRotatedFilesCount);
         self::setPhpDisplayErrors($phpDisplayErrors);
         self::setPhpErrorReportingLevel($phpErrorReportingLevel);
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
     {
-        $pathName = self::CFG_PATH;
         $maxSizeForRotateName = self::CFG_MAX_SIZE_FOR_ROTATE;
         $maxRotatedFilesCountName = self::CFG_MAX_ROTATED_FILES_COUNT;
         $phpDisplayErrors = self::CFG_PHP_DISPLAY_ERRORS;
@@ -154,10 +156,6 @@ class Log
             return var_export($x, true);
         }, $defaultConfig);
         $config = <<<CFG
-        ; Путь к файлу лога
-        ; По умолчанию: {$defaultConfig[self::CFG_PATH]}
-        $pathName={$defaultConfig[self::CFG_PATH]}
-        
         ; Максимальный размер файла лога в байтах
         ; По умолчанию: {$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
         ;$maxSizeForRotateName={$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
