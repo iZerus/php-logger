@@ -8,7 +8,7 @@ namespace PhpLoggerTests\SetupByConfig;
 use DomainException;
 use PhpLogger\Log;
 
-class SetupByConfigIncorrectLogReportingLevel extends SetupByConfigIncorrectValue
+class SetupByConfigIncorrectLogFileLevel extends SetupByConfigIncorrectValue
 {
 
     protected function test(): bool
@@ -25,7 +25,7 @@ class SetupByConfigIncorrectLogReportingLevel extends SetupByConfigIncorrectValu
 
     protected function testLevel(string $level): bool
     {
-        $this->createConfig(Log::CFG_REPORTING_LOG_LEVEL, $level);
+        $this->createConfig(Log::CFG_LOG_FILE_LEVEL, $level);
         try {
             Log::setupByConfig($this->getLogPath(), $this->getConfigPath());
         } catch (DomainException $e) {

@@ -26,7 +26,7 @@ class SetupByConfigIncorrectLogDisplayLevel extends SetupByConfigIncorrectValue
 
     protected function testLevel(string $level): bool
     {
-        $this->createConfig(Log::CFG_DISPLAY_LOG_LEVEL, $level);
+        $this->createConfig(Log::CFG_LOG_DISPLAY_LEVEL, $level);
         try {
             Log::setupByConfig($this->getLogPath(), $this->getConfigPath());
         } catch (DomainException $e) {

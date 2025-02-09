@@ -47,8 +47,8 @@ class Log
     public const CFG_PHP_DISPLAY_ERRORS = 'phpDisplayErrors';
     public const CFG_PHP_ERROR_REPORTING_LEVEL = 'phpErrorReportingLevel';
     public const CFG_PHP_DISABLE_XDEBUG_LOG = 'phpDisableXDebugLog';
-    public const CFG_DISPLAY_LOG_LEVEL = 'displayLogLevel';
-    public const CFG_REPORTING_LOG_LEVEL = 'reportingLogLevel';
+    public const CFG_LOG_DISPLAY_LEVEL = 'logDisplayLevel';
+    public const CFG_LOG_FILE_LEVEL = 'logFileLevel';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -64,7 +64,7 @@ class Log
     public const ERROR_INVALID_LEVEL_NAME = 1012;
 
     /** @var int */
-    private static $logReportingLevel = self::A_ALL;
+    private static $logFileLevel = self::A_ALL;
     /** @var int */
     private static $logDisplayLevel = self::A_NONE;
     /** @var string */
@@ -123,8 +123,8 @@ class Log
             self::CFG_PHP_DISPLAY_ERRORS => false,
             self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL & ~E_NOTICE,
             self::CFG_PHP_DISABLE_XDEBUG_LOG => false,
-            self::CFG_DISPLAY_LOG_LEVEL => self::S_NONE,
-            self::CFG_REPORTING_LOG_LEVEL => self::S_INFO,
+            self::CFG_LOG_DISPLAY_LEVEL => self::S_NONE,
+            self::CFG_LOG_FILE_LEVEL => self::S_INFO,
         ];
         if (!file_exists($configPath)) {
             self::createConfigFile($configPath, $defaultConfig);
@@ -154,13 +154,13 @@ class Log
         if ($phpDisableXDebugLog === null) {
             throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_DISABLE_XDEBUG_LOG), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
-        $displayLogLevel = $config[self::CFG_DISPLAY_LOG_LEVEL];
-        if (empty($displayLogLevel)) {
-            $displayLogLevel = self::S_NONE;
+        $logDisplayLevel = $config[self::CFG_LOG_DISPLAY_LEVEL];
+        if (empty($logDisplayLevel)) {
+            $logDisplayLevel = self::S_NONE;
         }
-        $reportingLogLevel = $config[self::CFG_REPORTING_LOG_LEVEL];
-        if (empty($reportingLogLevel)) {
-            $reportingLogLevel = self::S_NONE;
+        $logFileLevel = $config[self::CFG_LOG_FILE_LEVEL];
+        if (empty($logFileLevel)) {
+            $logFileLevel = self::S_NONE;
         }
         self::setup($logPath, $maxSizeForRotate, $maxRotatedFilesCount);
         self::setPhpDisplayErrors($phpDisplayErrors);
@@ -168,8 +168,8 @@ class Log
         if ($phpDisableXDebugLog) {
             self::disableXDebugLogs();
         }
-        self::setLogDisplayLevelByName($displayLogLevel);
-        self::setLogFileLevelByName($reportingLogLevel);
+        self::setLogDisplayLevelByName($logDisplayLevel);
+        self::setLogFileLevelByName($logFileLevel);
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
@@ -179,8 +179,8 @@ class Log
         $phpDisplayErrors = self::CFG_PHP_DISPLAY_ERRORS;
         $phpErrorReportingLevel = self::CFG_PHP_ERROR_REPORTING_LEVEL;
         $phpDisableXDebugLog = self::CFG_PHP_DISABLE_XDEBUG_LOG;
-        $displayLogLevel = self::CFG_DISPLAY_LOG_LEVEL;
-        $reportingLogLevel = self::CFG_REPORTING_LOG_LEVEL;
+        $logDisplayLevel = self::CFG_LOG_DISPLAY_LEVEL;
+        $logFileLevel = self::CFG_LOG_FILE_LEVEL;
         $defaultConfig = array_map(function ($x) {
             return var_export($x, true);
         }, $defaultConfig);
@@ -212,13 +212,13 @@ class Log
         
         ; Уровень отображения логов на экране
         ; Варианты: none, error, warning, info, debug
-        ; По умолчанию: {$defaultConfig[self::CFG_DISPLAY_LOG_LEVEL]}
-        ;$displayLogLevel={$defaultConfig[self::CFG_DISPLAY_LOG_LEVEL]}
+        ; По умолчанию: {$defaultConfig[self::CFG_LOG_DISPLAY_LEVEL]}
+        ;$logDisplayLevel={$defaultConfig[self::CFG_LOG_DISPLAY_LEVEL]}
         
         ; Уровень вывода логов в файл
         ; Варианты: none, error, warning, info, debug
-        ; По умолчанию: {$defaultConfig[self::CFG_REPORTING_LOG_LEVEL]}
-        ;$reportingLogLevel={$defaultConfig[self::CFG_REPORTING_LOG_LEVEL]}
+        ; По умолчанию: {$defaultConfig[self::CFG_LOG_FILE_LEVEL]}
+        ;$logFileLevel={$defaultConfig[self::CFG_LOG_FILE_LEVEL]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
@@ -317,7 +317,7 @@ class Log
      */
     public static function setLogFileLevel(int $level): void
     {
-        self::$logReportingLevel = $level;
+        self::$logFileLevel = $level;
     }
 
     /**
@@ -368,7 +368,7 @@ class Log
         if ($pid === false) {
             $pid = '-';
         }
-        if ($level & self::$logReportingLevel) {
+        if ($level & self::$logFileLevel) {
             error_log("$pid $text");
         }
     }
