@@ -47,6 +47,7 @@ class Log
     public const CFG_PHP_DISPLAY_ERRORS = 'phpDisplayErrors';
     public const CFG_PHP_ERROR_REPORTING_LEVEL = 'phpErrorReportingLevel';
     public const CFG_PHP_DISABLE_XDEBUG_LOG = 'phpDisableXDebugLog';
+    public const CFG_DISPLAY_LOG_LEVEL = 'displayLogLevel';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -59,6 +60,7 @@ class Log
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH = 1009;
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT = 1010;
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE = 1011;
+    public const ERROR_INVALID_LEVEL_NAME = 1012;
 
     /** @var int */
     private static $logReportingLevel = self::A_ALL;
@@ -120,6 +122,7 @@ class Log
             self::CFG_PHP_DISPLAY_ERRORS => false,
             self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL,
             self::CFG_PHP_DISABLE_XDEBUG_LOG => false,
+            self::CFG_DISPLAY_LOG_LEVEL => self::S_NONE,
         ];
         if (!file_exists($configPath)) {
             self::createConfigFile($configPath, $defaultConfig);
@@ -149,12 +152,17 @@ class Log
         if ($phpDisableXDebugLog === null) {
             throw new UnexpectedValueException(sprintf('Ошибка чтения параметра %s', self::CFG_PHP_DISABLE_XDEBUG_LOG), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE);
         }
+        $displayLogLevel = $config[self::CFG_DISPLAY_LOG_LEVEL];
+        if (empty($displayLogLevel)) {
+            $displayLogLevel = self::S_NONE;
+        }
         self::setup($logPath, $maxSizeForRotate, $maxRotatedFilesCount);
         self::setPhpDisplayErrors($phpDisplayErrors);
         self::setPhpErrorReportingLevel($phpErrorReportingLevel);
         if ($phpDisableXDebugLog) {
             self::disableXDebugLogs();
         }
+        self::setLogDisplayLevelByName($displayLogLevel);
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
@@ -164,6 +172,7 @@ class Log
         $phpDisplayErrors = self::CFG_PHP_DISPLAY_ERRORS;
         $phpErrorReportingLevel = self::CFG_PHP_ERROR_REPORTING_LEVEL;
         $phpDisableXDebugLog = self::CFG_PHP_DISABLE_XDEBUG_LOG;
+        $displayLogLevel = self::CFG_DISPLAY_LOG_LEVEL;
         $defaultConfig = array_map(function ($x) {
             return var_export($x, true);
         }, $defaultConfig);
@@ -192,6 +201,11 @@ class Log
         ; Отключать следует только при необходимости, если используется XDebug
         ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
         ;$phpDisableXDebugLog={$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
+        
+        ; Уровень отображения логов
+        ; Варианты: none, error, warning, info, debug
+        ; По умолчанию: {$defaultConfig[self::CFG_DISPLAY_LOG_LEVEL]}
+        ;$displayLogLevel={$defaultConfig[self::CFG_DISPLAY_LOG_LEVEL]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
@@ -450,7 +464,7 @@ class Log
             case Log::S_DEBUG:
                 return self::A_ALL;
             default:
-                throw new DomainException('Неизвестный уровень логов');
+                throw new DomainException('Неизвестный уровень логов', self::ERROR_INVALID_LEVEL_NAME);
         }
     }
 
