@@ -15,6 +15,7 @@ class SetupByConfigCorrect extends Test
         $path = __DIR__ . '/test.ini';
         unlink($path);
         Log::setupByConfig(__DIR__ . '/latest.log', $path);
+        Log::setLogFileLevelByName(Log::S_DEBUG);
         return true;
     }
 }

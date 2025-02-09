@@ -133,7 +133,7 @@ class Log
             self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL & ~E_NOTICE,
             self::CFG_PHP_DISABLE_XDEBUG_LOG => false,
             self::CFG_LOG_DISPLAY_LEVEL => self::S_NONE,
-            self::CFG_LOG_FILE_LEVEL => self::S_DEBUG,
+            self::CFG_LOG_FILE_LEVEL => self::S_INFO,
             self::CFG_LOG_NAME => self::LOG_DEFAULT_NAME,
         ];
         if (!file_exists($configPath)) {
