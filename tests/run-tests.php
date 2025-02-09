@@ -23,6 +23,8 @@ use PhpLoggerTests\Setup\SetupWithIncorrectMaxRotatedFilesCount;
 use PhpLoggerTests\Setup\SetupWithIncorrectMaxSizeForRotate;
 use PhpLoggerTests\Setup\SetupWithIncorrectPath;
 use PhpLoggerTests\Setup\SetupWithNewLogFile;
+use PhpLoggerTests\SetupByConfig\SetupByConfigCorrect;
+use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectAppName;
 use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectLogDisplayLevel;
 use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectLogFileLevel;
 use PhpLoggerTests\SetupByConfig\SetupByConfigIncorrectMaxRotatedFilesCount;
@@ -63,6 +65,8 @@ $tests = [
     new SetupByConfigIncorrectPhpDisableXDebugLog(),
     new SetupByConfigIncorrectLogDisplayLevel(),
     new SetupByConfigIncorrectLogFileLevel(),
+    new SetupByConfigIncorrectAppName(),
+    new SetupByConfigCorrect(),
     // IsInitialized
     new IsInitializedAfterSetup(),
     // Log

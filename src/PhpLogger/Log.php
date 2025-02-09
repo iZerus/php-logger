@@ -56,6 +56,7 @@ class Log
     public const CFG_PHP_DISABLE_XDEBUG_LOG = 'phpDisableXDebugLog';
     public const CFG_LOG_DISPLAY_LEVEL = 'logDisplayLevel';
     public const CFG_LOG_FILE_LEVEL = 'logFileLevel';
+    public const CFG_LOG_NAME = 'logName';
     public const ERROR_LOG_WITHOUT_SETUP = 1000;
     public const ERROR_SETUP_INCORRECT_LOG_PATH = 1001;
     public const ERROR_SETUP_INCORRECT_MAX_SIZE_FOR_ROTATE = 1002;
@@ -69,13 +70,14 @@ class Log
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_FORMAT = 1010;
     public const ERROR_SETUP_BY_CFG_INCORRECT_INI_VALUE = 1011;
     public const ERROR_INVALID_LEVEL_NAME = 1012;
+    public const LOG_DEFAULT_NAME = 'Application';
 
     /** @var int */
     private static $logFileLevel = self::A_ALL;
     /** @var int */
     private static $logDisplayLevel = self::A_NONE;
     /** @var string */
-    private static $defaultName = "Application";
+    private static $defaultName = self::LOG_DEFAULT_NAME;
     /** @var bool */
     private static $initialized = false;
     /** @var int[] */
@@ -131,7 +133,8 @@ class Log
             self::CFG_PHP_ERROR_REPORTING_LEVEL => E_ALL & ~E_NOTICE,
             self::CFG_PHP_DISABLE_XDEBUG_LOG => false,
             self::CFG_LOG_DISPLAY_LEVEL => self::S_NONE,
-            self::CFG_LOG_FILE_LEVEL => self::S_INFO,
+            self::CFG_LOG_FILE_LEVEL => self::S_DEBUG,
+            self::CFG_LOG_NAME => self::LOG_DEFAULT_NAME,
         ];
         if (!file_exists($configPath)) {
             self::createConfigFile($configPath, $defaultConfig);
@@ -169,6 +172,7 @@ class Log
         if (empty($logFileLevel)) {
             $logFileLevel = self::S_NONE;
         }
+        $logName = $config[self::CFG_LOG_NAME];
         self::setup($logPath, $maxSizeForRotate, $maxRotatedFilesCount);
         self::setPhpDisplayErrors($phpDisplayErrors);
         self::setPhpErrorReportingLevel($phpErrorReportingLevel);
@@ -177,6 +181,7 @@ class Log
         }
         self::setLogDisplayLevelByName($logDisplayLevel);
         self::setLogFileLevelByName($logFileLevel);
+        self::setDefaultName($logName);
     }
 
     private static function createConfigFile(string $path, array $defaultConfig): void
@@ -188,6 +193,7 @@ class Log
         $phpDisableXDebugLog = self::CFG_PHP_DISABLE_XDEBUG_LOG;
         $logDisplayLevel = self::CFG_LOG_DISPLAY_LEVEL;
         $logFileLevel = self::CFG_LOG_FILE_LEVEL;
+        $logName = self::CFG_LOG_NAME;
         $defaultConfig = array_map(function ($x) {
             return var_export($x, true);
         }, $defaultConfig);
@@ -242,6 +248,11 @@ class Log
         ; Отключать следует только при необходимости, если используется XDebug
         ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
         ;$phpDisableXDebugLog={$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
+        
+        ; Имя логгера
+        ; Не должно быть пустым или содержать пробелы
+        ; По умолчанию: {$defaultConfig[self::CFG_LOG_NAME]}
+        ;$logName={$defaultConfig[self::CFG_LOG_NAME]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
