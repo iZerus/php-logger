@@ -192,30 +192,9 @@ class Log
             return var_export($x, true);
         }, $defaultConfig);
         $config = <<<CFG
-        ; Максимальный размер файла лога в байтах
-        ; По умолчанию: {$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
-        ;$maxSizeForRotateName={$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
-        
-        ; Максимальное количество ротаций файла лога
-        ; По умолчанию: {$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
-        ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
-        
-        ; Отображать ошибки PHP на экране
-        ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
-        ;$phpDisplayErrors={$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
-        
-        ; Уровень вывода ошибок PHP в файл
-        ; Вычислить можно с помощью констант E_ERROR, E_NOTICE и т.д.
-        ; Примеры:
-        ; E_ALL = 32767
-        ; E_ALL & ~E_NOTICE = 32759
-        ; По умолчанию: {$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
-        ;$phpErrorReportingLevel={$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
-        
-        ; Отключение вывода логов PHP XDebug
-        ; Отключать следует только при необходимости, если используется XDebug
-        ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
-        ;$phpDisableXDebugLog={$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
+        ; ====================================================================
+        ;                     - Настройки уровня логов -
+        ; ====================================================================
         
         ; Уровень отображения логов на экране
         ; Варианты: none, error, warning, info, debug
@@ -226,6 +205,43 @@ class Log
         ; Варианты: none, error, warning, info, debug
         ; По умолчанию: {$defaultConfig[self::CFG_LOG_FILE_LEVEL]}
         ;$logFileLevel={$defaultConfig[self::CFG_LOG_FILE_LEVEL]}
+        
+        ; ====================================================================
+        ;                       - Настройки ошибок PHP -
+        ; ====================================================================
+        
+        ; Отображать ошибки PHP на экране
+        ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
+        ;$phpDisplayErrors={$defaultConfig[self::CFG_PHP_DISPLAY_ERRORS]}
+        
+        ; Уровень вывода ошибок PHP в файл (число)
+        ; Вычислить можно с помощью констант E_ERROR, E_NOTICE и т.д.
+        ; Примеры:
+        ; E_ALL = 32767
+        ; E_ALL & ~E_NOTICE = 32759
+        ; По умолчанию: {$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
+        ;$phpErrorReportingLevel={$defaultConfig[self::CFG_PHP_ERROR_REPORTING_LEVEL]}
+        
+        ; ====================================================================
+        ;                     - Настройки ротации логов PHP -
+        ; ====================================================================
+        
+        ; Максимальный размер файла лога в байтах
+        ; По умолчанию: {$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
+        ;$maxSizeForRotateName={$defaultConfig[self::CFG_MAX_SIZE_FOR_ROTATE]}
+        
+        ; Максимальное количество ротаций файла лога
+        ; По умолчанию: {$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
+        ;$maxRotatedFilesCountName={$defaultConfig[self::CFG_MAX_ROTATED_FILES_COUNT]}
+        
+        ; ====================================================================
+        ;                          - Прочие настройки -
+        ; ====================================================================
+        
+        ; Отключение вывода логов PHP XDebug
+        ; Отключать следует только при необходимости, если используется XDebug
+        ; По умолчанию: {$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
+        ;$phpDisableXDebugLog={$defaultConfig[self::CFG_PHP_DISABLE_XDEBUG_LOG]}
         CFG;
         if (@file_put_contents($path, $config) === false) {
             throw new RuntimeException(sprintf("Не удается создать файл конфигурации по пути %s", $path), self::ERROR_SETUP_BY_CFG_INCORRECT_INI_PATH);
